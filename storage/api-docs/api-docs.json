@@ -12,35 +12,67 @@
         }
     ],
     "paths": {
-        "/api/admin/test": {
+        "/api/admin/users": {
             "get": {
                 "tags": [
-                    "Администратор"
+                    "Администратор - Сотрудники"
                 ],
-                "summary": "Тестовый маршрут для проверки прав администратора",
-                "operationId": "4bd7bfc68320d47f5eb32f41157743d1",
+                "summary": "Получение списка всех сотрудников",
+                "operationId": "9ded17315e13756cd593b5840cd39a26",
                 "responses": {
                     "200": {
-                        "description": "Успешный ответ, если у пользователя есть права администратора",
+                        "description": "Успешный ответ",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Вы - администратор!"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Администратор - Сотрудники"
+                ],
+                "summary": "Создание нового сотрудника",
+                "operationId": "f6f90d5fbbe24f66eb2b43901e0d3f38",
+                "requestBody": {
+                    "description": "Данные нового сотрудника",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Сотрудник успешно создан",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
                     },
-                    "401": {
-                        "description": "Не аутентифицирован"
+                    "422": {
+                        "description": "Ошибка валидации"
                     },
-                    "403": {
-                        "description": "Доступ запрещен (не администратор)"
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
                     }
                 },
                 "security": [
@@ -147,6 +179,63 @@
     },
     "components": {
         "schemas": {
+            "StoreUserRequest": {
+                "title": "StoreUserRequest",
+                "description": "Данные для создания нового сотрудника",
+                "required": [
+                    "last_name",
+                    "first_name",
+                    "position",
+                    "phone",
+                    "password"
+                ],
+                "properties": {
+                    "last_name": {
+                        "description": "Фамилия",
+                        "type": "string",
+                        "example": "Петров"
+                    },
+                    "first_name": {
+                        "description": "Имя",
+                        "type": "string",
+                        "example": "Петр"
+                    },
+                    "patronymic": {
+                        "description": "Отчество",
+                        "type": "string",
+                        "example": "Петрович",
+                        "nullable": true
+                    },
+                    "position": {
+                        "description": "Должность",
+                        "type": "string",
+                        "example": "Старший повар"
+                    },
+                    "phone": {
+                        "description": "Номер телефона (логин)",
+                        "type": "string",
+                        "example": "79991234502"
+                    },
+                    "password": {
+                        "description": "Пароль (минимум 8 символов)",
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    },
+                    "documents": {
+                        "description": "Массив ID документов для назначения",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "example": [
+                            1,
+                            2
+                        ]
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User",
                 "description": "Модель пользователя",
@@ -218,8 +307,8 @@
     },
     "tags": [
         {
-            "name": "Администратор",
-            "description": "Администратор"
+            "name": "Администратор - Сотрудники",
+            "description": "Администратор - Сотрудники"
         },
         {
             "name": "Аутентификация",
