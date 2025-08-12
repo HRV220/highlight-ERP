@@ -1,0 +1,234 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Highlight ERP API Documentation",
+        "description": "Документация API для проекта Highlight ERP",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Основной API сервер"
+        }
+    ],
+    "paths": {
+        "/api/admin/test": {
+            "get": {
+                "tags": [
+                    "Администратор"
+                ],
+                "summary": "Тестовый маршрут для проверки прав администратора",
+                "operationId": "4bd7bfc68320d47f5eb32f41157743d1",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ, если у пользователя есть права администратора",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Вы - администратор!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не аутентифицирован"
+                    },
+                    "403": {
+                        "description": "Доступ запрещен (не администратор)"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Аутентификация"
+                ],
+                "summary": "Аутентификация пользователя",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "phone",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "phone": {
+                                        "type": "string",
+                                        "format": "phone",
+                                        "example": "79990001122"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Успешная аутентификация",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|aBcDeFgHiJkLmNoPqRsTuVwXyZ"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Аутентификация"
+                ],
+                "summary": "Выход из системы",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Успешный выход",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Вы успешно вышли из системы."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Не аутентифицирован"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "title": "User",
+                "description": "Модель пользователя",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": "true",
+                        "example": "1"
+                    },
+                    "last_name": {
+                        "description": "Фамилия",
+                        "type": "string",
+                        "example": "Иванов"
+                    },
+                    "first_name": {
+                        "description": "Имя",
+                        "type": "string",
+                        "example": "Иван"
+                    },
+                    "patronymic": {
+                        "description": "Отчество",
+                        "type": "string",
+                        "example": "Иванович",
+                        "nullable": true
+                    },
+                    "position": {
+                        "description": "Должность",
+                        "type": "string",
+                        "example": "Главный администратор"
+                    },
+                    "phone": {
+                        "description": "Номер телефона (логин)",
+                        "type": "string",
+                        "example": "79990001122"
+                    },
+                    "role": {
+                        "description": "Роль пользователя",
+                        "type": "string",
+                        "enum": [
+                            "admin",
+                            "employee"
+                        ],
+                        "example": "admin"
+                    },
+                    "created_at": {
+                        "description": "Дата создания",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": "true"
+                    },
+                    "updated_at": {
+                        "description": "Дата обновления",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": "true"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Введите Bearer токен для доступа к защищенным эндпоинтам",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Администратор",
+            "description": "Администратор"
+        },
+        {
+            "name": "Аутентификация",
+            "description": "Аутентификация"
+        }
+    ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ]
+}
