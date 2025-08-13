@@ -12,6 +12,154 @@
         }
     ],
     "paths": {
+        "/api/admin/documents": {
+            "get": {
+                "tags": [
+                    "Администратор - Документы"
+                ],
+                "summary": "Получение списка всех документов",
+                "operationId": "getDocuments",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Document"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Администратор - Документы"
+                ],
+                "summary": "Загрузка нового документа",
+                "operationId": "storeDocument",
+                "requestBody": {
+                    "description": "Данные для загрузки документа. Используйте multipart/form-data.",
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "file"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "description": "Название документа",
+                                        "type": "string"
+                                    },
+                                    "file": {
+                                        "description": "Файл документа (PDF, DOCX, XLSX)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_for_all_employees": {
+                                        "description": "Назначить всем сотрудникам",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Документ успешно создан",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Document"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/documents/{document}": {
+            "delete": {
+                "tags": [
+                    "Администратор - Документы"
+                ],
+                "summary": "Удаление документа",
+                "operationId": "deleteDocument",
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "description": "ID документа",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Документ успешно удален"
+                    },
+                    "404": {
+                        "description": "Документ не найден"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/statistics": {
+            "get": {
+                "tags": [
+                    "Администратор - Статистика"
+                ],
+                "summary": "Получение статистики по ознакомлению сотрудников",
+                "operationId": "getStatistics",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ со статистикой",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserStatistics"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/admin/users": {
             "get": {
                 "tags": [
@@ -388,6 +536,126 @@
                 },
                 "type": "object"
             },
+            "DocumentStatus": {
+                "title": "Document Status",
+                "description": "Статус одного документа в списке статистики",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Правила компании"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "assigned",
+                            "read"
+                        ],
+                        "example": "read"
+                    }
+                },
+                "type": "object"
+            },
+            "UserStatistics": {
+                "title": "User Statistics",
+                "description": "Статистика по документам для одного сотрудника",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "example": "Батырев"
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "example": "К.В."
+                    },
+                    "patronymic": {
+                        "type": "string",
+                        "example": "",
+                        "nullable": true
+                    },
+                    "position": {
+                        "type": "string",
+                        "example": "Бармен"
+                    },
+                    "avatar_path": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "documents": {
+                        "description": "Список назначенных документов и их статусы",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DocumentStatus"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "Document": {
+                "title": "Document",
+                "description": "Модель документа",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": "true",
+                        "example": "1"
+                    },
+                    "title": {
+                        "description": "Название документа",
+                        "type": "string",
+                        "example": "Инструкция по технике безопасности"
+                    },
+                    "description": {
+                        "description": "Краткое описание",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "file_path": {
+                        "description": "Путь к файлу в хранилище",
+                        "type": "string",
+                        "example": "documents/xyz.pdf"
+                    },
+                    "original_filename": {
+                        "description": "Исходное имя файла",
+                        "type": "string",
+                        "example": "instrukciya.pdf"
+                    },
+                    "file_mime_type": {
+                        "description": "MIME-тип файла",
+                        "type": "string",
+                        "example": "application/pdf"
+                    },
+                    "file_size": {
+                        "description": "Размер файла в байтах",
+                        "type": "integer",
+                        "example": "102400"
+                    },
+                    "is_for_all_employees": {
+                        "description": "Флаг 'Назначить всем'",
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": "true"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": "true"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User",
                 "description": "Модель пользователя",
@@ -458,6 +726,14 @@
         }
     },
     "tags": [
+        {
+            "name": "Администратор - Документы",
+            "description": "Администратор - Документы"
+        },
+        {
+            "name": "Администратор - Статистика",
+            "description": "Администратор - Статистика"
+        },
         {
             "name": "Администратор - Сотрудники",
             "description": "Администратор - Сотрудники"

@@ -64,6 +64,19 @@ class EloquentUserRepository implements UserRepositoryInterface
       
       if (Arr::has($data, 'documents')) {
         $newDocumentIds = $data['documents'] ?? [];
+        $readDocumentIds = $user->documents()
+        ->wherePivot('status', 'read')
+        ->pluck('documents.id');
+        // Проверяем, не пытается ли админ открепить прочитанный документ.
+        foreach ($readDocumentIds as $readId) {
+          // Если ID прочитанного документа отсутствует в новом списке 
+          // которые должны быть привязаны к пользователю...
+          if (!in_array($readId, $newDocumentIds)) {
+            // ...то это недопустимая операция. Выбрасываем исключение
+            // Транзакция будет автоматически отменена, и данные не сохранят
+            throw new LogicException('Нельзя открепить документ, который сотрудник уже прочитал.');
+          }
+        }
         $user->documents()->sync($newDocumentIds);
       }
       return $user->fresh();

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\Api\Admin\DocumentController;
 use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\Admin\StatisticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,11 +25,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->group(function() {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
-        
         Route::get('/users/{user}', [UserController::class, 'show']);
-        
         Route::put('/users/{user}', [UserController::class, 'update']);
-        
         Route::delete('/users/{user}', [UserController::class, 'destroy']);
+
+
+        Route::apiResource('documents', DocumentController::class);
+
+        Route::get('statistics', [StatisticsController::class, 'index']);
+
     });
 });
