@@ -82,6 +82,101 @@
                 ]
             }
         },
+        "/api/admin/users/{user}": {
+            "get": {
+                "tags": [
+                    "Администратор - Сотрудники"
+                ],
+                "summary": "Получение информации о конкретном сотруднике",
+                "operationId": "getUserById",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID сотрудника",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Сотрудник не найден"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Администратор - Сотрудники"
+                ],
+                "summary": "Обновление данных сотрудника",
+                "operationId": "updateUser",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "description": "ID сотрудника",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Обновленные данные сотрудника",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Сотрудник успешно обновлен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Сотрудник не найден"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации или бизнес-логики"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/login": {
             "post": {
                 "tags": [
@@ -221,6 +316,63 @@
                         "type": "string",
                         "format": "password",
                         "example": "password123"
+                    },
+                    "documents": {
+                        "description": "Массив ID документов для назначения",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "example": [
+                            1,
+                            2
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateUserRequest": {
+                "title": "UpdateUserRequest",
+                "description": "Данные для обновления сотрудника",
+                "required": [
+                    "last_name",
+                    "first_name",
+                    "position",
+                    "phone"
+                ],
+                "properties": {
+                    "last_name": {
+                        "description": "Фамилия",
+                        "type": "string",
+                        "example": "Петров"
+                    },
+                    "first_name": {
+                        "description": "Имя",
+                        "type": "string",
+                        "example": "Петр"
+                    },
+                    "patronymic": {
+                        "description": "Отчество",
+                        "type": "string",
+                        "example": "Петрович",
+                        "nullable": true
+                    },
+                    "position": {
+                        "description": "Должность",
+                        "type": "string",
+                        "example": "Старший повар"
+                    },
+                    "phone": {
+                        "description": "Номер телефона (логин)",
+                        "type": "string",
+                        "example": "79991234502"
+                    },
+                    "password": {
+                        "description": "Пароль (минимум 8 символов)",
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123",
+                        "nullable": true
                     },
                     "documents": {
                         "description": "Массив ID документов для назначения",

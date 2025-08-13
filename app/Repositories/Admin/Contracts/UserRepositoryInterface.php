@@ -9,5 +9,6 @@ interface UserRepositoryInterface
 {
   public function all(): Collection;
   public function create(array $data): User;
+  public function update(User $user, array $data): User;
 
 }
