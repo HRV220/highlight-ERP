@@ -61,14 +61,10 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): JsonResponse
     {
-        // ПРАВИЛЬНО: используем $request->validated(), а не $request->validate().
-        // validated() возвращает только те данные, что прошли валидацию,
-        // и не требует повторного вызова правил.
         $validatedData = $request->validated();
 
         try {
             $user = $this->userRepository->create($validatedData);
-            // Загружаем документы, чтобы они были в ответе.
             $user->load('documents');
 
             return response()->json($user, 201);
@@ -104,7 +100,6 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        // Загружаем документы и возвращаем JSON
         return response()->json($user->load('documents'));
     }
 
@@ -142,11 +137,9 @@ class UserController extends Controller
         try {
             $updatedUser = $this->userRepository->update($user, $request->validated());
 
-            // Возвращаем обновленного пользователя со свежими данными о документах.
             return response()->json($updatedUser->load('documents'));
 
         } catch (LogicException $e) {
-            // Если репозиторий бросит наше исключение (например, про прочитанные доки)
             return response()->json(['message' => $e->getMessage()], 422);
         } catch (Throwable $e) {
             report($e);

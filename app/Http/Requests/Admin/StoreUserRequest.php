@@ -33,8 +33,6 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Мы проверяем права доступа через middleware 'role:admin',
-        // поэтому здесь просто разрешаем выполнение запроса.
         return true;
     }
 
@@ -45,7 +43,6 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        // 2. Добавляем наши правила валидации
         return [
             'last_name'  => 'required|string|max:255',
             'first_name' => 'required|string|max:255',

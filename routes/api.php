@@ -1,38 +1,110 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\Admin\AdminController;
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Здесь регистрируются все API-маршруты для приложения. Эти маршруты
+| автоматически получают префикс /api. Для доступа к защищенным
+| роутам требуется аутентификация через Sanctum (Bearer Token).
+|
+*/
+
 use App\Http\Controllers\Api\Admin\DocumentController;
-use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\StatisticsController;
+use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Публичные маршруты (Аутентификация)
+|--------------------------------------------------------------------------
+|
+| Эти эндпоинты доступны для всех, включая неаутентифицированных
+| пользователей.
+|
+*/
 
-// Маршруты, доступные для всех (неаутентифицированных пользователей)
+// Эндпоинт для входа в систему. Принимает телефон и пароль,
+// в случае успеха возвращает данные пользователя и API токен.
 Route::post('/login', [AuthController::class, 'login']);
 
-// Маршруты, доступные только для аутентифицированных пользователей
+
+/*
+|--------------------------------------------------------------------------
+| Защищенные маршруты
+|--------------------------------------------------------------------------
+|
+| Все маршруты в этой группе требуют наличия валидного Sanctum токена
+| в заголовке Authorization: Bearer <token>.
+|
+*/
 Route::middleware('auth:sanctum')->group(function () {
-    // Стандартный маршрут для получения данных о текущем пользователе
+    /**
+     * Стандартный эндпоинт для получения информации о текущем
+     * аутентифицированном пользователе. Используется фронтендом
+     * для проверки валидности токена и получения данных юзера.
+     */
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Наш маршрут для выхода из системы
+    /**
+     * Эндпоинт для выхода из системы. Отзывает текущий
+     * использованный токен, делая его недействительным.
+     */
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::middleware('role:admin')->prefix('admin')->group(function() {
-        Route::get('/users', [UserController::class, 'index']);
-        Route::post('/users', [UserController::class, 'store']);
-        Route::get('/users/{user}', [UserController::class, 'show']);
-        Route::put('/users/{user}', [UserController::class, 'update']);
-        Route::delete('/users/{user}', [UserController::class, 'destroy']);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Маршруты для Администратора
+    |--------------------------------------------------------------------------
+    |
+    | Эта группа маршрутов доступна только для пользователей с ролью 'admin'.
+    | Проверка роли осуществляется с помощью middleware 'role:admin'.
+    | Все роуты здесь также имеют префикс /api/admin.
+    |
+    */
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        /**
+         * Ресурсный контроллер для управления сотрудниками (CRUD).
+         * Route::apiResource автоматически создает следующие эндпоинты:
+         * - GET /users -> UserController@index
+         * - POST /users -> UserController@store
+         * - GET /users/{user} -> UserController@show
+         * - PUT/PATCH /users/{user} -> UserController@update
+         * - DELETE /users/{user} -> UserController@destroy
+         */
+        Route::apiResource('users', UserController::class);
 
+        /**
+         * Ресурсный контроллер для управления документами.
+         * Создает аналогичный набор CRUD-эндпоинтов для документов.
+         * Запрос на создание (POST) должен быть multipart/form-data из-за загрузки файла.
+         */
         Route::apiResource('documents', DocumentController::class);
 
+        /**
+         * Эндпоинт для получения сводной статистики по ознакомлению
+         * сотрудников с документами.
+         */
         Route::get('statistics', [StatisticsController::class, 'index']);
-
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Маршруты для Сотрудника
+    |--------------------------------------------------------------------------
+    |
+    | Эта группа маршрутов будет доступна только для пользователей с ролью 'employee'.
+    | Все роуты здесь также будут иметь префикс /api/employee.
+    |
+    */
+    // Route::middleware('role:employee')->prefix('employee')->group(function () {
+    //     // TODO: Добавить роуты для модуля сотрудника
+    // });
 });

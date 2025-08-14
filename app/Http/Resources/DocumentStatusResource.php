@@ -26,7 +26,6 @@ class DocumentStatusResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            // Самое главное: достаем статус из pivot-таблицы
             'status' => $this->whenPivotLoaded('document_users', function () {
                 return $this->pivot->status;
             }),

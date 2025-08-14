@@ -66,7 +66,6 @@ class AuthController extends Controller
 
         $user = User::where('phone', $request->phone)->first();
 
-        // Проверяем, что пользователь существует и пароль верен
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'phone' => ['Неверный номер телефона или пароль.'],

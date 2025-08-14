@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
 
-            $table->string('title'); // Название документа
-            $table->text('description')->nullable(); // Краткое описание (полезно иметь для карточек)
-            $table->string('file_path'); // Путь к файлу в хранилище (например, 'documents/doc1.pdf')
-            $table->string('original_filename'); // Исходное имя файла для скачивания
-            $table->string('file_mime_type'); // MIME-тип (например, 'application/pdf')
-            $table->unsignedInteger('file_size'); // Размер файла в байтах
-            $table->boolean('is_for_all_employees')->default(false); // Чекбокс "Использовать для всех"
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->string('file_path');
+            $table->string('original_filename');
+            $table->string('file_mime_type');
+            $table->unsignedInteger('file_size');
+            $table->boolean('is_for_all_employees')->default(false);
 
             $table->timestamps();
         });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreDocumentRequest;
+use App\Http\Requests\Admin\UpdateDocumentRequest;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
 use App\Repositories\Admin\Contracts\DocumentRepositoryInterface;
@@ -84,11 +85,46 @@ class DocumentController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Post(
+     *      path="/api/admin/documents/{document}",
+     *      operationId="updateDocument",
+     *      summary="Обновление документа (включая замену файла)",
+     *      description="Позволяет изменить название, флаг и/или заменить файл. Статусы ознакомления не сбрасываются. Используйте multipart/form-data и метод POST с полем _method=PUT.",
+     *      tags={"Администратор - Документы"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="document",
+     *          description="ID документа для обновления",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\RequestBody(
+     *          @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  @OA\Property(property="_method", type="string", enum={"PUT"}, default="PUT", description="Обязательно для эмуляции PUT-запроса."),
+     *                  @OA\Property(property="title", type="string", description="Новое название (опционально)"),
+     *                  @OA\Property(property="file", type="string", format="binary", description="Новый файл (опционально)"),
+     *                  @OA\Property(property="is_for_all_employees", type="boolean", description="Новое значение флага (опционально)")
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(response=200, description="Документ успешно обновлен", @OA\JsonContent(ref="#/components/schemas/Document")),
+     *      @OA\Response(response=404, description="Документ не найден"),
+     *      @OA\Response(response=422, description="Ошибка валидации")
+     * )
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateDocumentRequest $request, Document $document): JsonResponse
     {
-        //
+        // 1. Данные уже провалидированы классом UpdateDocumentRequest.
+        // 2. Laravel уже нашел нужный Document по ID из URL.
+        // 3. Просто вызываем наш репозиторий.
+        $updatedDocument = $this->documentRepository->update($document, $request->validated());
+
+        // Возвращаем успешный ответ с обновленными данными документа.
+        return response()->json($updatedDocument);
     }
 
     /**

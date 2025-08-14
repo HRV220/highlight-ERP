@@ -22,21 +22,14 @@ class StoreDocumentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // В ТЗ поле называется "Название документа", в миграции - 'title'. Используем title.
             'title' => 'required|string|max:255',
             
-            // В ТЗ поле называется "Загрузить файл". Назовем его 'file' в запросе.
             'file' => [
                 'required',
-                // 'file' - проверяет, что это действительно файл
                 'file',
-                // 'mimes' - проверяет разрешенные расширения (и MIME-типы)
                 'mimes:pdf,docx,xlsx',
-                // Ограничим максимальный размер файла, например, 10 МБ (10240 килобайт)
                 'max:10240',
             ],
-
-            // В ТЗ поле "Использовать для всех". В миграции `is_for_all_employees`
             'is_for_all_employees' => 'nullable|boolean',
         ];
     }

@@ -99,6 +99,80 @@
             }
         },
         "/api/admin/documents/{document}": {
+            "post": {
+                "tags": [
+                    "Администратор - Документы"
+                ],
+                "summary": "Обновление документа (включая замену файла)",
+                "description": "Позволяет изменить название, флаг и/или заменить файл. Статусы ознакомления не сбрасываются. Используйте multipart/form-data и метод POST с полем _method=PUT.",
+                "operationId": "updateDocument",
+                "parameters": [
+                    {
+                        "name": "document",
+                        "in": "path",
+                        "description": "ID документа для обновления",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "_method": {
+                                        "description": "Обязательно для эмуляции PUT-запроса.",
+                                        "type": "string",
+                                        "default": "PUT",
+                                        "enum": [
+                                            "PUT"
+                                        ]
+                                    },
+                                    "title": {
+                                        "description": "Новое название (опционально)",
+                                        "type": "string"
+                                    },
+                                    "file": {
+                                        "description": "Новый файл (опционально)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "is_for_all_employees": {
+                                        "description": "Новое значение флага (опционально)",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Документ успешно обновлен",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Document"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Документ не найден"
+                    },
+                    "422": {
+                        "description": "Ошибка валидации"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "delete": {
                 "tags": [
                     "Администратор - Документы"

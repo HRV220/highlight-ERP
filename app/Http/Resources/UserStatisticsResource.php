@@ -39,7 +39,6 @@ class UserStatisticsResource extends JsonResource
             'patronymic' => $this->patronymic,
             'position' => $this->position,
             'avatar_path' => $this->avatar_path,
-            // Включаем коллекцию документов, обработанную нашим DocumentStatusResource
             'documents' => DocumentStatusResource::collection($this->whenLoaded('documents')),
         ];
     }
