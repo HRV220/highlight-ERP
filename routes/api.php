@@ -11,6 +11,8 @@
 |
 */
 
+use App\Http\Controllers\Api\Employee\DocumentController as EmployeeDocumentController;
+use App\Http\Controllers\Api\Employee\ProfileController as EmployeeProfileController;
 use App\Http\Controllers\Api\Admin\DocumentController;
 use App\Http\Controllers\Api\Admin\StatisticsController;
 use App\Http\Controllers\Api\Admin\UserController;
@@ -84,7 +86,8 @@ Route::middleware('auth:sanctum')->group(function () {
         /**
          * Ресурсный контроллер для управления документами.
          * Создает аналогичный набор CRUD-эндпоинтов для документов.
-         */
+
+        */
         Route::apiResource('documents', DocumentController::class);
 
         /**
@@ -103,7 +106,16 @@ Route::middleware('auth:sanctum')->group(function () {
     | Все роуты здесь также будут иметь префикс /api/employee.
     |
     */
-    // Route::middleware('role:employee')->prefix('employee')->group(function () {
-    //     // TODO: Добавить роуты для модуля сотрудника
-    // });
+    Route::middleware('role:employee')->prefix('employee')->group(function () {
+        // --- Документы ---
+        Route::get('documents', [EmployeeDocumentController::class, 'index']);
+        Route::get('documents/{document}', [EmployeeDocumentController::class, 'show']);
+        Route::post('documents/{document}/read', [EmployeeDocumentController::class, 'markAsRead']);
+
+        // --- Личный профиль ---
+        Route::get('profile', [EmployeeProfileController::class, 'show']);
+        Route::put('profile', [EmployeeProfileController::class, 'update']);
+        Route::post('profile/change-password', [EmployeeProfileController::class, 'changePassword']);
+        Route::post('profile/avatar', [EmployeeProfileController::class, 'updateAvatar']);
+    });
 });

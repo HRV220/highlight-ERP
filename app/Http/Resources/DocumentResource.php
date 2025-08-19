@@ -15,7 +15,7 @@ class DocumentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data = [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
@@ -27,5 +27,11 @@ class DocumentResource extends JsonResource
             'created_at' => $this->created_at->toDateTimeString(),
             'updated_at' => $this->updated_at->toDateTimeString(),
         ];
+
+        if ($this->resource->relationLoaded('pivot') && $this->pivot) {
+            $data['status'] = $this->pivot->status;
+        }
+
+        return $data;
     }
 }
