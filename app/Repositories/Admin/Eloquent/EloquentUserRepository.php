@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Repositories\Admin\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 use LogicException;
 
@@ -69,5 +70,18 @@ class EloquentUserRepository implements UserRepositoryInterface
       }
       return $user->fresh();
     });
+  }
+  public function delete(User $user): bool
+  {
+    return DB::transaction(function () use ($user) {
+      $avatarPath = $user->avatar_path;
+      $deletedFromDb = $user->delete();
+
+      if ($deletedFromDb && $avatarPath) {
+        Storage::disk('public')->delete($avatarPath);
+      }
+      return $deletedFromDb;
+    });
+
   }
 }

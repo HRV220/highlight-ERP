@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests\Admin\StoreDocumentRequest;
 use App\Http\Requests\Admin\UpdateDocumentRequest;
+use App\Http\Resources\DocumentResource;
 use App\Models\Document;
 use Illuminate\Http\JsonResponse;
 use App\Repositories\Admin\Contracts\DocumentRepositoryInterface;
@@ -38,8 +39,9 @@ class DocumentController extends Controller
     public function index(): JsonResponse
     {
         $documents = $this->documentRepository->getAll();
-        return response()->json($documents);
+        return DocumentResource::collection($documents)->response();
     }
+
 
     /**
      * @OA\Post(
@@ -73,15 +75,8 @@ class DocumentController extends Controller
     public function store(StoreDocumentRequest $request): JsonResponse
     {
         $document = $this->documentRepository->create($request->validated());
-        return response()->json($document, 201);
-    }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+        return (new DocumentResource($document))->response()->setStatusCode(201);
     }
 
     /**
@@ -118,13 +113,8 @@ class DocumentController extends Controller
      */
     public function update(UpdateDocumentRequest $request, Document $document): JsonResponse
     {
-        // 1. Данные уже провалидированы классом UpdateDocumentRequest.
-        // 2. Laravel уже нашел нужный Document по ID из URL.
-        // 3. Просто вызываем наш репозиторий.
         $updatedDocument = $this->documentRepository->update($document, $request->validated());
-
-        // Возвращаем успешный ответ с обновленными данными документа.
-        return response()->json($updatedDocument);
+        return (new DocumentResource($updatedDocument))->response();
     }
 
     /**

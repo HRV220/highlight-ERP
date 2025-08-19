@@ -5,7 +5,7 @@ use App\Models\User;
 
 
 use App\Repositories\Admin\Contracts\StatisticRepositoryInterface;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 
 class EloquentStatisticRepository implements StatisticRepositoryInterface
 {

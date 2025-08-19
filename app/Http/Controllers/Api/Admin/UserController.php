@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Repositories\Admin\Contracts\UserRepositoryInterface;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -35,8 +36,8 @@ class UserController extends Controller
      */
     public function index(): JsonResponse
     {
-        $employees = User::where('role', 'employee')->orderBy('last_name')->get();
-        return response()->json($employees);
+        $employees = $this->userRepository->all();
+        return UserResource::collection($employees)->response();
     }
 
     /**
@@ -67,7 +68,7 @@ class UserController extends Controller
             $user = $this->userRepository->create($validatedData);
             $user->load('documents');
 
-            return response()->json($user, 201);
+            return (new UserResource($user))->response()->setStatusCode(201);
 
         } catch (Throwable $e) {
             report($e);
@@ -100,7 +101,8 @@ class UserController extends Controller
 
     public function show(User $user): JsonResponse
     {
-        return response()->json($user->load('documents'));
+        $user->load('documents');
+        return (new UserResource($user))->response();    
     }
 
     /**
@@ -137,7 +139,7 @@ class UserController extends Controller
         try {
             $updatedUser = $this->userRepository->update($user, $request->validated());
 
-            return response()->json($updatedUser->load('documents'));
+            return (new UserResource($updatedUser))->response();
 
         } catch (LogicException $e) {
             return response()->json(['message' => $e->getMessage()], 422);
@@ -145,5 +147,29 @@ class UserController extends Controller
             report($e);
             return response()->json(['message' => 'Ошибка при обновлении сотрудника.'], 500);
         }
+    }
+
+        /**
+     * @OA\Delete(
+     *      path="/api/admin/users/{user}",
+     *      operationId="deleteUser",
+     *      summary="Удаление сотрудника",
+     *      tags={"Администратор - Сотрудники"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(
+     *          name="user",
+     *          description="ID сотрудника",
+     *          required=true,
+     *          in="path",
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(response=204, description="Сотрудник успешно удален"),
+     *      @OA\Response(response=404, description="Сотрудник не найден")
+     * )
+     */
+    public function destroy(User $user): JsonResponse
+    {
+        $this->userRepository->delete($user);
+        return response()->json(null, 204);
     }
 }

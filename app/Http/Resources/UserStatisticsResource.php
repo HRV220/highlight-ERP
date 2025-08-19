@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @OA\Schema(
@@ -14,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *     @OA\Property(property="first_name", type="string", example="К.В."),
  *     @OA\Property(property="patronymic", type="string", nullable=true, example=""),
  *     @OA\Property(property="position", type="string", example="Бармен"),
- *     @OA\Property(property="avatar_path", type="string", nullable=true, example=null),
+ *     @OA\Property(property="avatar_url", type="string", nullable=true, description="Полный URL аватара"),
  *     @OA\Property(
  *         property="documents",
  *         type="array",
@@ -38,7 +39,7 @@ class UserStatisticsResource extends JsonResource
             'first_name' => $this->first_name,
             'patronymic' => $this->patronymic,
             'position' => $this->position,
-            'avatar_path' => $this->avatar_path,
+            'avatar_url' => $this->avatar_path ? url(Storage::url($this->avatar_path)) : null,
             'documents' => DocumentStatusResource::collection($this->whenLoaded('documents')),
         ];
     }

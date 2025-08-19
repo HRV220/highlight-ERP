@@ -84,7 +84,6 @@ Route::middleware('auth:sanctum')->group(function () {
         /**
          * Ресурсный контроллер для управления документами.
          * Создает аналогичный набор CRUD-эндпоинтов для документов.
-         * Запрос на создание (POST) должен быть multipart/form-data из-за загрузки файла.
          */
         Route::apiResource('documents', DocumentController::class);
 
