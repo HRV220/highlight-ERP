@@ -170,6 +170,6 @@ class UserController extends Controller
     public function destroy(User $user): JsonResponse
     {
         $this->userRepository->delete($user);
-        return response()->json(null, 204);
+        return response()->json(['message'=> 'Пользователь успешно удален.']);    
     }
 }

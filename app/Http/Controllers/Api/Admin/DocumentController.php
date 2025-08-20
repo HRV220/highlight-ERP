@@ -141,6 +141,6 @@ class DocumentController extends Controller
     public function destroy(Document $document): JsonResponse
     {
         $this->documentRepository->delete($document);
-        return response()->json(null, 204);
+        return response()->json(['message'=> 'Документ успешно удален.']);
     }
 }
