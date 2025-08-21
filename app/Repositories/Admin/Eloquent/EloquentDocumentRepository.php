@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Role;
 
 class EloquentDocumentRepository implements DocumentRepositoryInterface
 {
@@ -33,7 +34,9 @@ class EloquentDocumentRepository implements DocumentRepositoryInterface
         'is_for_all_employees' => $data['is_for_all_employees'] ?? false,
       ]);
       if ($document->is_for_all_employees) {
-        $employeeIds = User::where('role', 'employee')->pluck('id');
+        $employeeRoleId = Role::where('name', 'employee')->value('id');
+        $employeeIds = User::where('role_id', $employeeRoleId)->pluck('id');
+
         if ($employeeIds->isNotEmpty()) {
           $document->users()->attach($employeeIds);
         }
@@ -60,11 +63,11 @@ class EloquentDocumentRepository implements DocumentRepositoryInterface
         ]);
       }
       if (!$wasForAll && $document->is_for_all_employees) {
-        $employeeIdsToAssign = User::where('role', 'employee')
+        $employeeRoleId = Role::where('name', 'employee')->value('id');
+        $employeeIdsToAssign = User::where('role_id', $employeeRoleId)
         ->whereDoesntHave('documents', function ($query) use ($document) {
-          $query->where('document_id', $document->id);
-        })->pluck('id');
-        
+        $query->where('document_id', $document->id);
+      })->pluck('id');
         if ($employeeIdsToAssign->isNotEmpty()) {
           $document->users()->attach($employeeIdsToAssign);
         }

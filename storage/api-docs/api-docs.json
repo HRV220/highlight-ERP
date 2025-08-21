@@ -830,10 +830,10 @@
                         "example": "Петрович",
                         "nullable": true
                     },
-                    "position": {
-                        "description": "Должность",
-                        "type": "string",
-                        "example": "Старший повар"
+                    "position_id": {
+                        "description": "ID должности",
+                        "type": "integer",
+                        "example": "1"
                     },
                     "phone": {
                         "description": "Номер телефона (логин)",

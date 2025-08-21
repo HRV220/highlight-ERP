@@ -20,7 +20,7 @@ class CheckRole
         $user = $request->user();
 
         foreach ($roles as $role) {
-            if ($user->role === $role) {
+            if ($user->hasRole($role)) {
                 return $next($request);
             }
         }

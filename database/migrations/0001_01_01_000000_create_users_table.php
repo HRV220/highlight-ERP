@@ -16,10 +16,14 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('first_name');
             $table->string('patronymic')->nullable();
-            $table->string('position');
+            $table->unsignedBigInteger('position_id');
+            //$table->foreignId('position_id')->constrained('positions')->onDelete('cascade');
+            //$table->string('position');
             $table->string('phone')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'employee'])->default('employee');
+            $table->unsignedBigInteger('role_id');
+            //$table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
+            //$table->enum('role', ['admin', 'employee'])->default('employee');
             $table->string('avatar_path')->nullable();
             $table->rememberToken();
             $table->timestamps();

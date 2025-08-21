@@ -14,7 +14,7 @@ use Illuminate\Validation\Rules\Password;
  *     @OA\Property(property="last_name", type="string", description="Фамилия", example="Петров"),
  *     @OA\Property(property="first_name", type="string", description="Имя", example="Петр"),
  *     @OA\Property(property="patronymic", type="string", nullable=true, description="Отчество", example="Петрович"),
- *     @OA\Property(property="position", type="string", description="Должность", example="Старший повар"),
+ *     @OA\Property(property="position_id", type="integer", description="ID должности", example="1"),
  *     @OA\Property(property="phone", type="string", description="Номер телефона (логин)", example="79991234502"),
  *     @OA\Property(property="password", type="string", format="password", description="Пароль (минимум 8 символов)", example="password123"),
  *     @OA\Property(
@@ -44,14 +44,14 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'last_name'  => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'patronymic' => 'nullable|string|max:255',
-            'position'   => 'required|string|max:255',
-            'phone'      => 'required|string|unique:users,phone',
-            'password'   => ['required', 'string', Password::min(8)],
-            'documents'    => 'nullable|array',
-            'documents.*'  => 'integer|exists:documents,id',
+            'last_name'  => ['required', 'string','max:255'],
+            'first_name' => ['required', 'string','max:255'],
+            'patronymic' => ['nullable', 'string', 'max:255'],
+            'position_id' => ['required', 'integer', 'exists:positions,id', ],
+            'phone' => 'required|string|unique:users,phone',
+            'password' => ['required', 'string', Password::min(8)],
+            'documents' => ['nullable', 'array'],
+            'documents.*' => ['integer', 'exists:documents,id'],
         ];
     }
 }

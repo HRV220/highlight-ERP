@@ -48,25 +48,14 @@ class UpdateUserRequest extends FormRequest
         $userId = $this->route('user')->id;
         
         return [
-            'last_name'  => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'patronymic' => 'nullable|string|max:255',
-            'position'   => 'required|string|max:255',
-
-            'phone' => [
-                'required',
-                'string',
-                Rule::unique('users', 'phone')->ignore($userId),
-            ],
-
-            'password' => [
-                'sometimes',
-                'required',
-                Password::min(8)
-            ],
-
-            'documents'    => 'nullable|array',
-            'documents.*'  => 'integer|exists:documents,id',
+            'last_name'  => ['required', 'string','max:255'],
+            'first_name' => ['required', 'string','max:255'],
+            'patronymic' => ['nullable', 'string', 'max:255'],
+            'position_id' => ['required', 'integer', 'exists:positions,id', ],
+            'phone' => ['required', 'string', Rule::unique('users', 'phone')->ignore($userId)],
+            'password' => ['sometimes', 'required', Password::min(8)],
+            'documents' => ['nullable', 'array'],
+            'documents.*' => ['integer', 'exists:documents,id'],
         ];
     }
 }

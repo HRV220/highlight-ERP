@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -38,10 +39,12 @@ class User extends Authenticatable
         'last_name',
         'first_name',
         'patronymic',
-        'position',
+        'position_id',
+        //'position',
         'phone',
         'password',
-        'role',
+        'role_id',
+        //'role',
         'avatar_path',
     ];
 
@@ -53,6 +56,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'avatar_path',
     ];
 
     /**
@@ -62,7 +66,6 @@ class User extends Authenticatable
      */
     protected function casts(): array
     {
-        // Мы убрали лишнее поле email_verified_at
         return [
             'password' => 'hashed',
         ];
@@ -73,12 +76,31 @@ class User extends Authenticatable
      */
     public function documents(): BelongsToMany
     {
-        // Если имя таблицы отличается от конвенции, его нужно указать
         $tableName = 'document_users'; 
-
         return $this->belongsToMany(Document::class, $tableName, 'user_id', 'document_id')
-                    // Это самая важная добавка!
                     ->withPivot('status', 'read_at')
                     ->withTimestamps();
     }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Проверяет, имеет ли пользователь указанную роль.
+     * @param string $roleName Имя роли ('admin', 'employee')
+     * @return bool
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role->name === $roleName;
+    }
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+
 }

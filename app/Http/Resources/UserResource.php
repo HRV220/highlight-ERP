@@ -20,9 +20,18 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'first_name' => $this->first_name,
             'patronymic' => $this->patronymic,
-            'position' => $this->position,
-            'phone' => $this->phone,
-            'role' => $this->role,
+            'position' => $this->whenLoaded('position', function () {
+                return [
+                    'id' => $this->position->id,
+                    'name' => $this->position->name,
+                ];
+            }),            'phone' => $this->phone,
+            'role' => $this->whenLoaded('role', function () {
+                return [
+                    'id' => $this->role->id,
+                    'name' => $this->role->name,
+                ];
+            }),            
             'avatar_url' => $this->avatar_path ? url(Storage::url($this->avatar_path)) : null,
             'documents' => DocumentResource::collection($this->whenLoaded('documents')),
             'created_at' => $this->created_at->toDateTimeString(),

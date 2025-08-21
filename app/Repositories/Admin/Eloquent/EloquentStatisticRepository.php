@@ -11,8 +11,8 @@ class EloquentStatisticRepository implements StatisticRepositoryInterface
 {
   public function getEmployeesWithDocumentsStatus(): Collection
   {
-    return User::where('role', 'employee')
-    ->with('documents')
+    return User::whereHas('role', function ($query) {$query->where('name', 'employee');})
+    ->with(['role', 'position', 'documents'])
     ->orderBy('last_name')
     ->get();
   

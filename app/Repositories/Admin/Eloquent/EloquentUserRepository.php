@@ -10,28 +10,35 @@ use App\Repositories\Admin\Contracts\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Role;
 
 use LogicException;
 
 class EloquentUserRepository implements UserRepositoryInterface
 {
 
-  public function all(): Collection
-  {
-    return User::where('role', 'employee')->orderBy('last_name')->get();
-  }
+public function all(): Collection
+{
+  return User::whereHas('role', function ($query) {$query->where('name', 'employee');})
+  ->with(['role', 'position'])
+  ->orderBy('last_name')
+  ->get();  
+}
 
   public function create(array $data): User
   {
     return DB::transaction(function () use ($data) {
+
+      $employeeRole = Role::where('name', 'employee')->firstOrFail();
+
       $user = User::create([
         'last_name' => $data['last_name'],
         'first_name' => $data['first_name'],
         'patronymic' => $data['patronymic'] ?? null,
-        'position' => $data['position'],
+        'position_id' => $data['position_id'],
         'phone' => $data['phone'],
         'password' => Hash::make($data['password']),
-        'role' => 'employee',
+        'role_id' => $employeeRole->id,
       ]);
 
       $explicitlyAssignedDocIds = collect($data['documents'] ?? []);
@@ -44,13 +51,13 @@ class EloquentUserRepository implements UserRepositoryInterface
         $user->documents()->attach($allDocumentIdsToAttach->all());
       }
 
-      return $user;
+      return $user->load(['position', 'role', 'documents']);
     });
   }
   public function update(User $user, array $data): User
   {
     return DB::transaction(function () use ($user, $data) {
-      $userData = Arr::except($data, ['documents']);
+      $userData = Arr::except($data, ['documents', 'role_id']);
       if (isset($userData['password'])) {
         $userData['password'] = Hash::make($userData['password']);
       }
@@ -68,7 +75,7 @@ class EloquentUserRepository implements UserRepositoryInterface
         }
         $user->documents()->sync($newDocumentIds);
       }
-      return $user->fresh();
+      return $user->fresh(['position', 'role', 'documents']);
     });
   }
   public function delete(User $user): bool
