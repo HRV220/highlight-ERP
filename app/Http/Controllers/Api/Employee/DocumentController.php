@@ -111,4 +111,59 @@ class DocumentController extends Controller
         return (new DocumentResource($assignedDocument))->response();
     }
 
+    /**
+     * @OA\Get(
+     *      path="/api/employee/documents/{document}/content",
+     *      operationId="getEmployeeDocumentContent",
+     *      summary="Получение содержимого документа для просмотра",
+     *      tags={"Сотрудник - Документы"},
+     *      security={{"bearerAuth":{}}},
+     *      @OA\Parameter(name="document", in="path", required=true, @OA\Schema(type="integer")),
+     *      @OA\Response(response=200, description="Успешный ответ"),
+     *      @OA\Response(response=403, description="Документ не назначен"),
+     *      @OA\Response(response=404, description="Документ не найден или файл отсутствует")
+     * )
+     */
+    public function content(Document $document): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $assignedDocument = $user->documents()->find($document->id);
+
+        if (!$assignedDocument) {
+            return response()->json(['message' => 'Этот документ вам не назначен.'], 403);
+        }
+
+        // Проверяем наличие файла
+        if (!$assignedDocument->file_path || !Storage::exists($assignedDocument->file_path)) {
+            return response()->json(['message' => 'Файл документа не найден.'], 404);
+        }
+
+        // Добавляем статус из pivot-данных
+        $assignedDocument->status = $assignedDocument->pivot->status;
+
+        // Получаем пользователя для ответа
+        $responseUser = [
+            'id' => $user->id,
+            'name' => $user->first_name . ' ' . $user->last_name,
+            'position' => $user->position->name ?? null,
+            'phone' => $user->phone,
+            'avatar' => $user->avatar_url ?? null,
+        ];
+
+        // Получаем URL файла для скачивания
+        $fileUrl = Storage::url($assignedDocument->file_path);
+
+        // Возвращаем документ и его содержимое
+        return response()->json([
+            'document' => new DocumentResource($assignedDocument),
+            'file_url' => $fileUrl,
+            'file_name' => basename($assignedDocument->file_path),
+            'file_size' => Storage::size($assignedDocument->file_path),
+            'mime_type' => Storage::mimeType($assignedDocument->file_path),
+            'user' => $responseUser
+        ]);
+    }
+
 }

@@ -109,6 +109,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:employee')->prefix('employee')->group(function () {
         // --- Документы ---
         Route::get('documents', [EmployeeDocumentController::class, 'index']);
+        Route::get('documents/{document}/content', [EmployeeDocumentController::class, 'content']);
         Route::get('documents/{document}', [EmployeeDocumentController::class, 'show']);
         Route::post('documents/{document}/read', [EmployeeDocumentController::class, 'markAsRead']);
 
